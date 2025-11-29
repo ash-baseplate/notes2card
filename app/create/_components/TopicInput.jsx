@@ -7,14 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-function TopicInput() {
+function TopicInput({ setTopic, setDifficultLevel }) {
   return (
     <div className="mt-10 w-full flex flex-col">
       <h2> Enter the Topic or Paste the content for which you want to generate the content</h2>
 
-      <Textarea placeholder="Start writting here" className="m-2" />
+      <Textarea placeholder="Start writting here" className="m-2" onChange={(e) => setTopic(e.target.value)} />
       <h2 className="mt-5 mb-3">Select the Difficult Level:</h2>
-      <Select>
+      <Select onValueChange={(value) => setDifficultLevel(value)}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Difficluty Level" />
         </SelectTrigger>
