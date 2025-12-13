@@ -1,6 +1,7 @@
 import { courseOutline } from '@/configs/AiModel';
 import { db } from '@/configs/db';
 import { STUDY_MATERIAL_TABLE } from '@/configs/schema';
+import { inngest } from '@/inngest/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -49,5 +50,15 @@ Rules:
     })
     .returning({ resp: STUDY_MATERIAL_TABLE });
   console.log('DB RESULT', dbResult);
-  return NextResponse.json({ esult: dbResult[0] });
+
+  //Trigger inggest event to generate notes
+
+  const result = await inngest.send({
+    name: 'notes/generate.completed',
+    data: {
+      course: dbResult[0].resp,
+    },
+  });
+  console.log('Inngest Event Result:', result);
+  return NextResponse.json({ result: dbResult[0] });
 }

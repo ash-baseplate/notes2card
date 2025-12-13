@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const apikey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const ai = new GoogleGenerativeAI(apikey);
 const model = ai.getGenerativeModel({
-  model: 'gemini-2.0-flash',
+  model: 'gemini-2.5-flash',
 });
 const generationConfig = {
   temperature: 1,
@@ -34,6 +34,16 @@ export const courseOutline = model.startChat({
     // },
   ],
 });
-// const result = await ChatSession.sendMessage('INSERT PROMPT HERE');
 
-// console.log(result.response.text());
+const notesGenerationConfig = {
+  temperature: 1,
+  maxOutputTokens: 8192,
+  topP: 0.95,
+  topK: 40,
+  responseMimeType: 'text/plain',
+};
+
+export const chapterNotesGenerator = model.startChat({
+  generationConfig: notesGenerationConfig,
+  history: [],
+});
