@@ -1,5 +1,4 @@
-import { integer } from 'drizzle-orm/gel-core';
-import { int } from 'drizzle-orm/mysql-core';
+import { integer } from 'drizzle-orm/pg-core';
 import { pgTable, boolean, serial, varchar, jsonb, json, text } from 'drizzle-orm/pg-core';
 export const USER_TABLE = pgTable('users', {
   id: serial('id').primaryKey(),

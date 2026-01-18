@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@clerk/nextjs';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 function Create() {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({});
@@ -33,7 +34,7 @@ function Create() {
     });
     setLoading(false);
     router.replace('/dashboard');
-
+    toast("Your course outline is being generated. It'll be ready in a few minutes!");
     console.log(result);
   };
   return (
