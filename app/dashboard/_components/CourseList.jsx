@@ -6,6 +6,7 @@ import { useState } from 'react';
 import CourseCardItems from './CourseCardItems';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 function CourseList() {
   const { user } = useUser();
@@ -33,13 +34,29 @@ function CourseList() {
           <RefreshCw />
         </Button>
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-5">
-        {loading == false
-          ? CourseList?.map((course, index) => <CourseCardItems course={course} key={index} />)
-          : [1, 2, 3, 4, 5, 6].map((item, index) => (
-              <div key={index} className="animate-pulse w-full h-56 bg-slate-200 rounded-lg"></div>
-            ))}
-      </div>
+      {!loading && CourseList?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center mt-10">
+          <div className="w-64 h-64">
+            <DotLottieReact
+              src="https://lottie.host/37cad5a1-b2f5-4e24-a71d-544aa35fe3e8/FZLlXRk8So.lottie"
+              loop
+              autoplay
+            />
+          </div>
+          <p className="text-gray-500 text-lg mt-4">No courses yet. Create your first one!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-5">
+          {loading == false
+            ? CourseList?.map((course, index) => <CourseCardItems course={course} key={index} />)
+            : [1, 2, 3, 4, 5, 6].map((item, index) => (
+                <div
+                  key={index}
+                  className="animate-pulse w-full h-56 bg-slate-200 rounded-lg"
+                ></div>
+              ))}
+        </div>
+      )}
     </div>
   );
 }

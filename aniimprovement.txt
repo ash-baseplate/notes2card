@@ -1,0 +1,57 @@
+ANIMATION IMPROVEMENT OPPORTUNITIES
+====================================
+
+1. COURSE GENERATION LOADING STATE
+   File: app/create/page.jsx
+   Location: Line 69 - During course generation
+   Current: Simple spinning loader icon
+   Suggested Animation: AI brain/thinking animation or document generation animation
+   Intention: Make the waiting experience more engaging during AI course outline generation
+
+2. EMPTY STUDY MATERIALS STATE
+   File: app/course/[courseId]/_components/StudyMaterialSection.jsx
+   Location: Could add when no study materials exist yet
+   Suggested Animation: Empty folder or "processing" animation
+   Intention: Inform users that study materials are being generated
+
+3. CHAPTER LIST EMPTY STATE
+   File: app/course/[courseId]/_components/ChapterList.jsx
+   Location: Could add when chapters array is empty
+   Suggested Animation: Book opening or chapter icons animation
+   Intention: Visual feedback when course has no chapters yet
+
+4. SUCCESS/COMPLETION STATES
+   File: app/create/page.jsx
+   Location: After successful course generation (line 33)
+   Current: Toast notification only
+   Suggested Animation: Success checkmark or celebration confetti
+   Intention: Celebrate successful course creation
+
+5. API CALL PROCESSING
+   File: inngest/functions.js
+   Location: During note generation process
+   Suggested Animation: Progress bar with animation or processing spinner
+   Intention: Show that background processing is happening
+
+6. USER REGISTRATION/WELCOME
+   File: app/provider.js
+   Location: When new user is created
+   Suggested Animation: Welcome/onboarding animation
+   Intention: Create a welcoming first impression for new users
+
+7. CREDITS/PROGRESS INDICATOR
+   File: app/dashboard/_components/Sidebar.jsx
+   Location: Line 60 - Credits section
+   Suggested Animation: Coin/credit icon animation when updating
+   Intention: Make credit usage more visually engaging
+
+8. FORM STEP TRANSITIONS
+   File: app/create/page.jsx
+   Location: Between form steps (step state)
+   Suggested Animation: Slide or fade transitions between steps
+   Intention: Smooth navigation through multi-step form
+
+NOTES:
+- All animations should use DotLottieReact from '@lottiefiles/dotlottie-react'
+- Components using animations must be client components ('use client')
+- These animations will improve user engagement, provide better feedback during async operations, and make empty states less jarring

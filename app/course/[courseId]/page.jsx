@@ -20,8 +20,7 @@ function Course() {
   };
   return (
     <div>
-      <DashboardHeader />
-      <div className="mx-10 md:36 lg:px-60 mt-10">
+      <div>
         {/*course intro */}
         <CourseIntroCard course={course} />
         {/*course content */}
