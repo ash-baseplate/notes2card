@@ -10,16 +10,18 @@ export async function POST(req) {
 Generate study material for: ${topic}
 Type: ${studyType}
 Difficulty: ${difficultyLevel}
-with summary of course, List of Chapters along with summary for each chapter, Topic list in each chapter
+with summary of course, List of Chapters (max 5) along with summary and emoji icon for each chapter, Topic list in each chapter
 
 You MUST return JSON ONLY in the following exact structure:
 
 {
   "courseTitle": "",
   "courseSummary": "",
+ 
   "chapters": [
     {
       "chapterTitle": "",
+      "emoji": "",
       "chapterSummary": "",
       "topics": []
     }

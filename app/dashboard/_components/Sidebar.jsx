@@ -30,8 +30,8 @@ function Sidebar() {
   return (
     <div className="h-screen shadow-md p-5">
       <div className="flex gap-4 items-center ">
-        {/* <Image src={'/logo.svg'} width={40} height={40} alt="Logo" /> */}
-        <h2 className="font-bold text-2xl">Notes2Card</h2>
+        <Image src={'/logo.png'} width={40} height={30} alt="Logo" />
+        <h2 className="font-bold text-3xl">Notes2Card</h2>
       </div>
 
       <div className="mt-10">
