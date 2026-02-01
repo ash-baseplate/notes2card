@@ -10,7 +10,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 function CourseList() {
   const { user } = useUser();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [CourseList, setCourseList] = useState([]);
   useEffect(() => {
     user && GetCourseList();
