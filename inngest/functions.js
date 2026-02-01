@@ -1,8 +1,13 @@
 import { db } from '@/configs/db';
 import { inngest } from './client';
-import { Chapter_Notes_TABLE, STUDY_MATERIAL_TABLE, USER_TABLE } from '@/configs/schema';
+import {
+  Chapter_Notes_TABLE,
+  STUDY_MATERIAL_TABLE,
+  STUDY_TYPE_CONTENT_TABLE,
+  USER_TABLE,
+} from '@/configs/schema';
 import { eq } from 'drizzle-orm';
-import { chapterNotesGenerator } from '@/configs/AiModel';
+import { chapterNotesGenerator, GenerateStudyTypeContentAiModel } from '@/configs/AiModel';
 
 export const helloWorld = inngest.createFunction(
   { id: 'hello-world' },
@@ -97,5 +102,34 @@ Chapter Data: ${JSON.stringify(chapter)}`;
         .where(eq(STUDY_MATERIAL_TABLE.courseId, course?.courseId));
       return 'Successfully updated course status to Ready';
     });
+  }
+);
+
+export const GenerateStudyTypeContent = inngest.createFunction(
+  { id: 'generate-study-type-content' },
+  { event: 'study/type.content.generated' },
+  async ({ event, step }) => {
+    const { studyType, prompt, courseId, recordId } = event.data;
+    // Logic to process generated study type content
+
+    const FlashcardAiResult = await step.run('Generating-flashcard', async () => {
+      // Store the generated content in the database
+      const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
+      const aiResp = JSON.parse(result.response.text());
+      return aiResp;
+    });
+
+    const DbResult = await step.run('store-study-type-content-in-db', async () => {
+      // Store the generated content in the database
+      const result = await db
+        .update(STUDY_TYPE_CONTENT_TABLE)
+        .set({
+          content: FlashcardAiResult,
+          status: 'Ready',
+        })
+        .where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId));
+    });
+
+    return 'Study type content generation process completed';
   }
 );

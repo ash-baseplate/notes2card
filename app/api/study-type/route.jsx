@@ -1,5 +1,5 @@
 import { db } from '@/configs/db';
-import { Chapter_Notes_TABLE } from '@/configs/schema';
+import { Chapter_Notes_TABLE, STUDY_TYPE_CONTENT_TABLE } from '@/configs/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
@@ -12,11 +12,16 @@ export async function POST(request) {
       .from(Chapter_Notes_TABLE)
       .where(eq(Chapter_Notes_TABLE.courseId, courseId));
 
+    const contentList = await db
+      .select()
+      .from(STUDY_TYPE_CONTENT_TABLE)
+      .where(eq(STUDY_TYPE_CONTENT_TABLE.courseId, courseId));
+    
     const result = {
       notes: notes,
-      flashcards: null,
-      quiz: null,
-      qa: null,
+      flashcards: contentList?.find((item) => item.type === 'Flashcards')?.content,
+      quiz: contentList?.find((item) => item.type === 'Quiz')?.content,
+      qa: contentList?.find((item) => item.type === 'Question/Answers')?.content,
     };
 
     return NextResponse.json(result);
