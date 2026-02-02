@@ -41,6 +41,9 @@ export async function POST(request) {
           eq(STUDY_TYPE_CONTENT_TABLE.type, studyType)
         )
       );
+    if (!result[0]) {
+      return NextResponse.json({ error: 'Study content not found' }, { status: 404 });
+    }
     return NextResponse.json(result[0]);
   }
 }

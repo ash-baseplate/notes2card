@@ -58,7 +58,7 @@ export default function SelectOption({ SelectedStudyType }) {
                   : 'bg-white hover:shadow-md hover:-translate-y-1')
               }
             >
-              <div className="w-14 h-14 flex items-center justify-center rounded-md bg-linear-to-br from-gray-50 to-white">
+              <div className="w-14 h-14 flex items-center justify-center rounded-md bg-gradient-to-br from-gray-50 to-white">
                 <Image
                   src={option.icon}
                   width={56}

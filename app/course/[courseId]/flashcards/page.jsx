@@ -1,7 +1,7 @@
 'use client';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import FlashCardsItems from './_components/FlashCardsItems';
 
@@ -13,27 +13,31 @@ function Flashcards() {
   const [flashcards, setFlashcards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    GetFlashCards();
-  }, []);
-
-  const GetFlashCards = async () => {
+  const GetFlashCards = useCallback(async () => {
     try {
       const result = await axios.post('/api/study-type', {
         courseId: courseId,
         studyType: 'Flashcards',
       });
       setFlashcards(result.data);
-      console.log(result.data);
     } catch (error) {
       console.error('Error fetching flashcards:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (!courseId) {
+      return;
+    }
+
+    setIsLoading(true);
+    GetFlashCards();
+  }, [GetFlashCards, courseId]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">

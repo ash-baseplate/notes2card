@@ -121,6 +121,7 @@ function FlashCardsItems({ flashcards = [], flipDirection = 'horizontal' }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [api, setApi] = React.useState();
+  const content = flashcards?.content ?? [];
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -148,7 +149,7 @@ function FlashCardsItems({ flashcards = [], flipDirection = 'horizontal' }) {
     };
   }, [api]);
 
-  if (flashcards.length === 0) {
+  if (!content.length) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">No flashcards available</p>
@@ -158,12 +159,12 @@ function FlashCardsItems({ flashcards = [], flipDirection = 'horizontal' }) {
 
   return (
     <div className="flex flex-col items-center space-y-8">
-      <ProgressBar currentIndex={currentIndex} totalCards={flashcards?.content?.length || 0} />
+      <ProgressBar currentIndex={currentIndex} totalCards={content.length} />
 
       {/* Carousel */}
       <Carousel setApi={setApi} className="w-full max-w-2xl">
         <CarouselContent>
-          {flashcards?.content?.map((card, index) => (
+          {content.map((card, index) => (
             <CarouselItem key={index}>
               <div className="flex items-center justify-center p-4">
                 <CardFlip

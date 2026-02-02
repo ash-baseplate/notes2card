@@ -19,7 +19,7 @@ function ChapterList({ course }) {
             key={index}
             onClick={() => handleChapterClick(index)}
           >
-            <div className="shrink-0 w-16 h-16 flex items-center justify-center bg-linear-to-br from-blue-50 to-purple-50 rounded-lg">
+            <div className="shrink-0 w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
               <span className="text-4xl">{chapter?.emoji}</span>
             </div>
             <div className="flex-1 min-w-0">
