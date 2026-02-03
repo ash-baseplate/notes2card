@@ -10,35 +10,15 @@ export async function POST(req) {
 Generate study material for: ${topic}
 Type: ${studyType}
 Difficulty: ${difficultyLevel}
-with summary of course, List of Chapters (max 5) along with summary and emoji icon for each chapter, Topic list in each chapter
-
-You MUST return JSON ONLY in the following exact structure:
-
-{
-  "courseTitle": "",
-  "courseSummary": "",
- 
-  "chapters": [
-    {
-      "chapterTitle": "",
-      "emoji": "",
-      "chapterSummary": "",
-      "topics": []
-    }
-  ]
-}
-
-Rules:
-- Use EXACTLY these keys.
-- DO NOT add any extra keys.
-- DO NOT rename any key.
-- DO NOT number chapters.
-- DO NOT include markdown.
-- DO NOT wrap in backticks.
-- ALWAYS follow this structure even for non-technical subjects like fashion, cooking, languages, soft skills, etc.
+with summary of course, List of Chapters (max-6 min-5) along with summary and emoji icon for each chapter, Topic list in each chapter You MUST return JSON ONLY.
 `;
-  const aiResp = await courseOutline.sendMessage(PROMPT);
-  const aiResult = JSON.parse(aiResp.response.text());
+  // OLD CODE (commented out - using new SDK version)
+  // const aiResp = await courseOutline.sendMessage(PROMPT);
+  // const aiResult = JSON.parse(aiResp.response.text());
+
+  // NEW CODE (using new SDK @google/genai)
+  const resultText = await courseOutline(PROMPT);
+  const aiResult = JSON.parse(resultText);
 
   const dbResult = await db
     .insert(STUDY_MATERIAL_TABLE)

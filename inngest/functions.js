@@ -78,11 +78,14 @@ Requirements:
 - Give content in HTML format (Do not add HTML, Head, Body, or title tags)
 - Structure the content with proper headings, sections, lists, and formatting
 - Include detailed explanations for each topic
-- Use semantic HTML elements like <div>, <section>, <h1>-<h6>, <ul>, <li>, <p>, <strong>, <code>, etc.
-
 Chapter Data: ${JSON.stringify(chapter)}`;
-        const result = await chapterNotesGenerator.sendMessage(PROMPT);
-        const aiResp = result.response.text();
+        // OLD CODE (commented out - using new SDK version)
+        // const result = await chapterNotesGenerator.sendMessage(PROMPT);
+        // const aiResp = result.response.text();
+
+        // NEW CODE (using new SDK @google/genai)
+        const aiResp = await chapterNotesGenerator(PROMPT);
+
         // Save notes to DB
         await db.insert(Chapter_Notes_TABLE).values({
           courseId: course?.courseId,
@@ -113,9 +116,13 @@ export const GenerateStudyTypeContent = inngest.createFunction(
     // Logic to process generated study type content
 
     const FlashcardAiResult = await step.run('Generating-flashcard', async () => {
-      // Store the generated content in the database
-      const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
-      const aiResp = JSON.parse(result.response.text());
+      // OLD CODE (commented out - using new SDK version)
+      // const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
+      // const aiResp = JSON.parse(result.response.text());
+
+      // NEW CODE (using new SDK @google/genai)
+      const resultText = await GenerateStudyTypeContentAiModel(prompt);
+      const aiResp = JSON.parse(resultText);
       return aiResp;
     });
 
