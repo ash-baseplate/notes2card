@@ -18,7 +18,13 @@ with summary of course, List of Chapters (max-6 min-5) along with summary and em
 
   // NEW CODE (using new SDK @google/genai)
   const resultText = await courseOutline(PROMPT);
-  const aiResult = JSON.parse(resultText);
+  let aiResult;
+  try {
+    aiResult = JSON.parse(resultText);
+  } catch (parseError) {
+    console.error('Failed to parse AI response:', resultText);
+    return NextResponse.json({ error: 'Invalid response from AI service' }, { status: 500 });
+  }
 
   const dbResult = await db
     .insert(STUDY_MATERIAL_TABLE)
