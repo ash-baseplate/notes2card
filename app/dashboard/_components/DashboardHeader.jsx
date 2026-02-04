@@ -14,7 +14,7 @@ function DashboardHeader() {
 
   return (
     <header className="flex items-center justify-between px-6 py-3 md:py-4 shadow max-w-5xl rounded-full mx-auto w-full bg-white">
-      <a href="/dashboard" className="flex gap-2 items-center hover:opacity-80 transition">
+      <a href="/" className="flex gap-2 items-center hover:opacity-80 transition">
         <Image src={'/logo.png'} width={30} height={30} alt="Logo" />
         <h2 className="font-bold text-2xl">
           Notes<span className="text-red-500 text-3xl">2</span>Card
