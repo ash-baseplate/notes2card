@@ -7,6 +7,7 @@ import CourseCardItems from './CourseCardItems';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import Link from 'next/link';
 
 function CourseList() {
   const { user } = useUser();
@@ -28,11 +29,16 @@ function CourseList() {
 
   return (
     <div>
-      <h2 className="font-bold text-2xl mt-10 flex justify-between items-center  ">
+      <h2 className="font-bold text-2xl mt-10 flex justify-between items-center">
         Your Study Material
-        <Button variant="outline" className="border-primary text-primary " onClick={GetCourseList}>
-          <RefreshCw />
-        </Button>
+        <div className="flex gap-2 items-center">
+          <Link href="/create">
+            <Button>+ Create New</Button>
+          </Link>
+          <Button variant="outline" className="border-primary text-primary" onClick={GetCourseList}>
+            <RefreshCw />
+          </Button>
+        </div>
       </h2>
       {!loading && CourseList?.length === 0 ? (
         <div className="flex flex-col items-center justify-center mt-10">
