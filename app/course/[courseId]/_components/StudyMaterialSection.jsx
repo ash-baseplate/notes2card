@@ -24,7 +24,7 @@ function StudyMaterialSection({ courseId, course }) {
       name: 'Quiz',
       desc: 'Test your knowledge with quizzes',
       icon: '/quiz.png',
-      path: '',
+      path: '/quiz',
       type: 'quiz',
     },
     {
