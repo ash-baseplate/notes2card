@@ -18,8 +18,8 @@ const HTMLConfig = {
   },
 };
 
-const modelv2 = 'gemini-2.5-flash';
-// const modelv2 = 'gemini-3-flash-preview';
+// const modelv2 = 'gemini-2.5-flash';
+const modelv2 = 'gemini-3-flash-preview';
 // Course Outline Generation Model
 const courseOutlineContents = [
   {
@@ -168,7 +168,19 @@ Generate detail content for exam material on each chapter Make sure to includes 
     role: 'model',
     parts: [
       {
-        text: `
+        text: `**Generating Flutter Exam Material**
+
+I'm now focused on crafting detailed HTML content for the "Get Started with Flutter" exam. The goal is to produce focused content about "What is Flutter?" and "Installing Flutter SDK," excluding the basic HTML structure. I am specifically generating code snippets for HTML output.
+
+
+**Developing Flutter Tutorial Modules**
+
+I'm now generating content for "Setting up an IDE" (VS Code/Android Studio), covering installation steps, and emphasizing choosing an IDE. Next, I'm focusing on "Creating a New Flutter Project," detailing the command-line approach and essential project structures. The current task will finish by explaining how to run a simple "Hello World" app, and then detailing the \`main.dart\` file and the basic project structure. I'm focusing on providing clear explanations and practical code snippets. I am also working on adding styling where needed, to improve readability.
+
+
+**Detailing Flutter SDK Installation**
+
+I'm now detailing the Flutter SDK installation, covering system requirements and the download process from the official site. The key focus is path configuration, which is critical for exams, and the use of the \`flutter doctor\` command for verifying the setup. I've also pivoted slightly to include some key exam tips at the end of the section, with key takeaways being highlighted.
 
 \`\`\`html
 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -336,7 +348,7 @@ export const chapterNotesGenerator = async (userPrompt) => {
 };
 
 // Study Type Content Generation Model
-const StudyTypeFlashcardContents = [
+const StudyTypeContents = [
   {
     role: 'user',
     parts: [
@@ -351,7 +363,7 @@ const StudyTypeFlashcardContents = [
     role: 'model',
     parts: [
       {
-        text: `
+        text: `Here are 5 essential flashcards covering **Flutter Fundamentals**, **UI Development**, and **Basic App Navigation** in JSON format.
 
 \`\`\`json
 [
@@ -390,10 +402,10 @@ const StudyTypeFlashcardContents = [
   },
 ];
 
-export const GenerateFlashcardstAiModel = async (userPrompt) => {
+export const GenerateStudyTypeContentAiModel = async (userPrompt) => {
   // Use the constant history with the example flashcards
   const conversationHistory = [
-    ...StudyTypeFlashcardContents,
+    ...StudyTypeContents,
     {
       role: 'user',
       parts: [{ text: userPrompt }],
@@ -423,138 +435,6 @@ export const GenerateFlashcardstAiModel = async (userPrompt) => {
     return resultText;
   } catch (error) {
     console.error('Error in GenerateStudyTypeContentAiModel:', error);
-    throw error;
-  }
-};
-
-const StudyTypeQuizcontents = [
-  {
-    role: 'user',
-    parts: [
-      {
-        text: `Generate Quiz on topic : Flutter Fundamentals,User Interface (UI) Development,Basic App Navigation with Question, Options and Correct answers  in JSON format (Max 5)
-
-`,
-      },
-    ],
-  },
-  {
-    role: 'model',
-    parts: [
-      {
-        text: `\`\`\`json
-{
-  "quizTitle": "Flutter Fundamentals, UI, and Navigation Quiz",
-  "total_questions": 10,
-  "questions": [
-    {
-      "id": 1,
-      "topic": "Flutter Fundamentals",
-      "question": "Which programming language is primarily used to develop Flutter applications?",
-      "options": [
-        "Java",
-        "Swift",
-        "Dart",
-        "Kotlin"
-      ],
-      "correct_answer": "Dart"
-    },
-    {
-      "id": 2,
-      "topic": "Flutter Fundamentals",
-      "question": "In Flutter, almost everything is considered a...",
-      "options": [
-        "Component",
-        "Widget",
-        "Module",
-        "Block"
-      ],
-      "correct_answer": "Widget"
-    },
-    {
-      "id": 3,
-      "topic": "Flutter Fundamentals",
-      "question": "Which widget type allows you to update the UI dynamically by changing its state?",
-      "options": [
-        "StatelessWidget",
-        "StatefulWidget",
-        "StaticWidget",
-        "InheritedWidget"
-      ],
-      "correct_answer": "StatefulWidget"
-    },
-    {
-      "id": 4,
-      "topic": "UI Development",
-      "question": "Which widget is best suited for displaying a scrollable list of widgets that might be infinite or very long?",
-      "options": [
-        "SingleChildScrollView",
-        "Column",
-        "ListView.builder",
-        "Stack"
-      ],
-      "correct_answer": "ListView.builder"
-    },
-    {
-      "id": 5,
-      "topic": "Basic App Navigation",
-      "question": "How do you remove the current screen from the stack and return to the previous one?",
-      "options": [
-        "Navigator.delete()",
-        "Navigator.back()",
-        "Navigator.pop()",
-        "Navigator.return()"
-      ],
-      "correct_answer": "Navigator.pop()"
-    },
-  ]
-}
-\`\`\``,
-      },
-    ],
-  },
-  {
-    role: 'user',
-    parts: [
-      {
-        text: `INSERT_INPUT_HERE`,
-      },
-    ],
-  },
-];
-export const GenerateQuizAiModel = async (userPrompt) => {
-  // Use the constant history with the example flashcards
-  const conversationHistory = [
-    ...StudyTypeQuizcontents,
-    {
-      role: 'user',
-      parts: [{ text: userPrompt }],
-    },
-  ];
-
-  try {
-    const response = await aiV2.models.generateContent({
-      model: modelv2,
-      config: JSONConfig,
-      contents: conversationHistory,
-    });
-
-    // Handle different response structures
-    let resultText =
-      (typeof response.text === 'function' && response.text()) ||
-      (typeof response.response?.text === 'function' && response.response.text()) ||
-      response.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('') ||
-      '';
-
-    // Clean up markdown code fences if present (e.g., ```json ... ```)
-    resultText = resultText
-      .replace(/^```json\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
-
-    return resultText;
-  } catch (error) {
-    console.error('Error in GenerateQuizAiModel:', error);
     throw error;
   }
 };

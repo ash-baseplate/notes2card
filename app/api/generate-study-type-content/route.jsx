@@ -1,14 +1,13 @@
 import { db } from '@/configs/db';
 import { STUDY_TYPE_CONTENT_TABLE } from '@/configs/schema';
 import { inngest } from '@/inngest/client';
+import { ST } from 'next/dist/shared/lib/utils';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   const { chapters, courseId, type } = await request.json();
-  const PROMPT =
-    type === 'Flashcards'
-      ? `Generate the flashcard on topic : ${chapters} in JSON format with front back content, Maximum 15 `
-      : `Generate Quiz on topic : ${chapters} with Question, Options and Correct answers  in JSON format, Maximum 15`;
+  const PROMPT = `Generate the flashcard on topic : ${chapters} in JSON format with front back content, Maximum 15
+`;
 
   //insert to db
 

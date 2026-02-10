@@ -3,7 +3,6 @@
 import { UserButton, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
@@ -12,12 +11,6 @@ import Link from 'next/link';
 function DashboardHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
-  const pathname = usePathname();
-
-  // Extract courseId and check if on course subpage
-  const courseMatch = pathname.match(/\/course\/([^/]+)\//);
-  const courseId = courseMatch ? courseMatch[1] : null;
-  const isOnCourseSubpage = /\/(notes|flashcards)/.test(pathname);
 
   return (
     <header className="flex items-center justify-between px-6 py-3 md:py-4 shadow max-w-5xl rounded-full mx-auto w-full bg-white">
@@ -35,15 +28,9 @@ function DashboardHeader() {
         <a className="hover:text-indigo-600" href="/dashboard">
           Dashboard
         </a>
-        {isOnCourseSubpage && courseId ? (
-          <a className="hover:text-indigo-600" href={`/course/${courseId}`}>
-            Course
-          </a>
-        ) : (
-          <a className="hover:text-indigo-600" href="#">
-            Upgrade
-          </a>
-        )}
+        <a className="hover:text-indigo-600" href="#">
+          Upgrade
+        </a>
         <a className="hover:text-indigo-600" href="#">
           Profile
         </a>
