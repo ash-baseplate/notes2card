@@ -18,8 +18,8 @@ const HTMLConfig = {
   },
 };
 
-// const modelv2 = 'gemini-2.5-flash';
-const modelv2 = 'gemini-3-flash-preview';
+const modelv2 = 'gemini-2.5-flash';
+// const modelv2 = 'gemini-3-flash-preview';
 // Course Outline Generation Model
 const courseOutlineContents = [
   {
