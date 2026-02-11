@@ -7,16 +7,11 @@ import {
   USER_TABLE,
 } from '@/configs/schema';
 import { eq } from 'drizzle-orm';
-import { chapterNotesGenerator, GenerateStudyTypeContentAiModel } from '@/configs/AiModel';
-
-export const helloWorld = inngest.createFunction(
-  { id: 'hello-world' },
-  { event: 'test/hello.world' },
-  async ({ event, step }) => {
-    await step.sleep('wait-a-moment', '1s');
-    return { message: `Hello ${event.data.email}!` };
-  }
-);
+import {
+  chapterNotesGenerator,
+  GenerateFlashcardAiModel,
+  GenerateQuizAiModel,
+} from '@/configs/AiModel';
 
 export const CreatNewUser = inngest.createFunction(
   { id: 'create-user' },
@@ -115,13 +110,11 @@ export const GenerateStudyTypeContent = inngest.createFunction(
     const { studyType, prompt, courseId, recordId } = event.data;
     // Logic to process generated study type content
 
-    const FlashcardAiResult = await step.run('Generating-flashcard', async () => {
-      // OLD CODE (commented out - using new SDK version)
-      // const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
-      // const aiResp = JSON.parse(result.response.text());
-
-      // NEW CODE (using new SDK @google/genai)
-      const resultText = await GenerateStudyTypeContentAiModel(prompt);
+    const AiResult = await step.run('Generating-flashcard', async () => {
+      const resultText =
+        studyType === 'Flashcards'
+          ? await GenerateFlashcardstAiModel(prompt)
+          : await GenerateQuizAiModel(prompt);
       const aiResp = JSON.parse(resultText);
       return aiResp;
     });
@@ -131,7 +124,7 @@ export const GenerateStudyTypeContent = inngest.createFunction(
       const result = await db
         .update(STUDY_TYPE_CONTENT_TABLE)
         .set({
-          content: FlashcardAiResult,
+          content: AiResult,
           status: 'Ready',
         })
         .where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId));

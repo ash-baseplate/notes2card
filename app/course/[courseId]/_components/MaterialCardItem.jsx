@@ -9,7 +9,17 @@ import { toast } from 'sonner';
 function MaterialCardItem({ item, studyTypeContent, course, refreshData }) {
   const [loading, setLoading] = useState(false);
 
-  const isContentReady = studyTypeContent?.[item.type]?.length != null;
+  // Map item.type to the response key from the API
+  const responseKeyMap = {
+    flashcards: 'flashcards',
+    quiz: 'quiz',
+    qa: 'qa',
+    notes: 'notes',
+  };
+  const responseKey = responseKeyMap[item.type] || item.type;
+
+  // Check if content exists (works for both arrays and objects)
+  const isContentReady = studyTypeContent?.[responseKey] != null;
 
   const GenerateContent = async () => {
     toast.success('Content generation started! It may take a few minutes.');

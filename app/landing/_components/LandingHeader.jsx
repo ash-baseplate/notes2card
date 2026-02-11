@@ -24,7 +24,7 @@ function LandingHeader() {
             href="/sign-in"
             className="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition"
           >
-            Get Started
+            Sign In
           </Link>
         ) : (
           <>
