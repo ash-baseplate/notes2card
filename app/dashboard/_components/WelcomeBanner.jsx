@@ -7,17 +7,22 @@ import Typewriter from 'typewriter-effect';
 function WelcomeBanner() {
   const { user } = useUser();
   return (
-    <div className="p-5 bg-blue-400 w-full text-white rounded-lg flex items-center gap-7">
-      <Image src={'/laptop.png'} alt="laptop" width={100} height={100} />
-      <div>
-        {' '}
+    <div className="p-4 md:p-5 bg-blue-400 w-full text-white rounded-lg flex flex-col md:flex-row items-center gap-4 md:gap-7">
+      <Image
+        src={'/laptop.png'}
+        alt="laptop"
+        width={100}
+        height={100}
+        className="w-16 h-16 md:w-[100px] md:h-[100px]"
+      />
+      <div className="text-center md:text-left">
         <div
           style={{
             fontFamily: 'Outfit, sans-serif',
             fontWeight: 'bold',
-            fontSize: '3em',
             display: 'inline-block',
           }}
+          className="text-xl md:text-3xl lg:text-4xl"
         >
           <Typewriter
             options={{
@@ -29,9 +34,9 @@ function WelcomeBanner() {
             }}
           />
         </div>
-        <p className="text-m">
-          Hey! there once again, its time to get back and{' '}
-          <b className="text-red-300 text-lg">START LEARNING</b> new course{' '}
+        <p className="text-sm md:text-base">
+          Hey there once again, it's time to get back and{' '}
+          <b className="text-red-300 text-base md:text-lg">START LEARNING</b> a new course{' '}
         </p>
       </div>
     </div>

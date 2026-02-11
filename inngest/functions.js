@@ -133,3 +133,39 @@ export const GenerateStudyTypeContent = inngest.createFunction(
     return 'Study type content generation process completed';
   }
 );
+
+export const DeleteCourse = inngest.createFunction(
+  { id: 'delete-course' },
+  { event: 'course/delete.requested' },
+  async ({ event, step }) => {
+    const { courseId } = event.data;
+
+    if (!courseId) {
+      throw new Error('courseId is required for course deletion');
+    }
+
+    // Delete chapter notes
+
+    // Delete chapter notes
+    await step.run('delete-chapter-notes', async () => {
+      await db.delete(Chapter_Notes_TABLE).where(eq(Chapter_Notes_TABLE.courseId, courseId));
+      return 'Chapter notes deleted';
+    });
+
+    // Delete study type content
+    await step.run('delete-study-type-content', async () => {
+      await db
+        .delete(STUDY_TYPE_CONTENT_TABLE)
+        .where(eq(STUDY_TYPE_CONTENT_TABLE.courseId, courseId));
+      return 'Study type content deleted';
+    });
+
+    // Delete the course itself
+    await step.run('delete-course-record', async () => {
+      await db.delete(STUDY_MATERIAL_TABLE).where(eq(STUDY_MATERIAL_TABLE.courseId, courseId));
+      return 'Course record deleted';
+    });
+
+    return 'Course deletion process completed';
+  }
+);
