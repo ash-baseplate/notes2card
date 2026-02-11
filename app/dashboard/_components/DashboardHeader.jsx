@@ -47,31 +47,6 @@ function DashboardHeader() {
           isMenuOpen ? 'max-md:w-full' : 'max-md:w-0'
         }`}
       >
-        <a className="hover:text-indigo-600" href="/dashboard">
-          Dashboard
-        </a>
-        {!isOnDashboard ? (
-          <a className="hover:text-indigo-600" href={`/course/${courseId}`}>
-            Course
-          </a>
-        ) : (
-          <HoverCard openDelay={10} closeDelay={100}>
-            <HoverCardTrigger asChild>
-              <Button variant="link">My Credits</Button>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-60">
-              <div className="border p-2 bg-slate-100 rounded-lg">
-                <h2 className="text-lg mb-2">Available Credits : {5 - courseCount}</h2>
-                <Progress value={(courseCount / 5) * 100} />
-                <h2 className="text-sm">{courseCount} Out of 5 Credits Used</h2>
-
-                <Link href={'/dashboard/upgrade'} className="text-primary text-xs mt-2 block">
-                  Upgrade to Create More
-                </Link>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-        )}
         <HoverCard>
           <HoverCardTrigger asChild>
             <a className="hover:text-indigo-600 cursor-pointer">Profile</a>
@@ -86,7 +61,39 @@ function DashboardHeader() {
             </div>
           </HoverCardContent>
         </HoverCard>
-        <button onClick={() => setIsMenuOpen(false)} className="md:hidden text-gray-600">
+        {!isOnDashboard ? (
+          <a className="hover:text-indigo-600" href={`/course/${courseId}`}>
+            Course
+          </a>
+        ) : (
+          <HoverCard openDelay={10} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <Button className="p-0" variant="link">
+                My Credits
+              </Button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-60">
+              <div className="border p-2 bg-slate-100 rounded-lg">
+                <h2 className="text-lg mb-2">Available Credits : {5 - courseCount}</h2>
+                <Progress value={(courseCount / 5) * 100} />
+                <h2 className="text-sm">{courseCount} Out of 5 Credits Used</h2>
+
+                <Link href={'/dashboard/upgrade'} className="text-primary text-xs mt-2 block">
+                  Upgrade to Create More
+                </Link>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        )}
+        <a className="hover:text-indigo-600" href="/dashboard">
+          Dashboard
+        </a>
+
+        <Button
+          variant="outline"
+          onClick={() => setIsMenuOpen(false)}
+          className="md:hidden text-gray-600"
+        >
           <svg
             className="w-6 h-6"
             fill="none"
@@ -98,7 +105,7 @@ function DashboardHeader() {
           >
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
-        </button>
+        </Button>
       </nav>
 
       <div className="flex items-center space-x-4">

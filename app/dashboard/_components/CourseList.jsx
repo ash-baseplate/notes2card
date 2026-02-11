@@ -72,8 +72,8 @@ function CourseList() {
       <h2 className="font-bold text-xl md:text-2xl mt-6 md:mt-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         Your Study Material
         <div className="flex gap-2 items-center">
-          <Link href="/create">
-            <Button>+ Create New</Button>
+          <Link href={courseCount >= 5 ? "#" : "/create"}>
+            <Button disabled={courseCount >= 5}>+ Create New</Button>
           </Link>
           <Button variant="outline" className="border-primary text-primary" onClick={GetCourseList}>
             <RefreshCw />

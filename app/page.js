@@ -1,11 +1,11 @@
 'use client';
 
 import LandingHeader from './landing/_components/LandingHeader';
-
 import HeroSection from './landing/_components/HeroSection';
 import FeaturesSection from './landing/_components/FeaturesSection';
 import ProductDemo from './landing/_components/ProductDemo';
 import ReadySection from './landing/_components/ReadySection';
+import { PageFooter } from '@/components/ui/PageFooter';
 
 export default function Home() {
   return (
@@ -17,13 +17,7 @@ export default function Home() {
         <ProductDemo />
       </div>
       <ReadySection />
-
-      {/* Footer Section */}
-      <section className="w-full bg-white px-6 pt-12 text-center">
-        <p className="text-xs text-zinc-500">
-          MADE WITH <span className="text-lg">♡</span>
-        </p>
-      </section>
+      <PageFooter />
     </div>
   );
 }
