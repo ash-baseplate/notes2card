@@ -113,7 +113,7 @@ export const GenerateStudyTypeContent = inngest.createFunction(
     const AiResult = await step.run('Generating-flashcard', async () => {
       const resultText =
         studyType === 'Flashcards'
-          ? await GenerateFlashcardstAiModel(prompt)
+          ? await GenerateFlashcardAiModel(prompt)
           : await GenerateQuizAiModel(prompt);
       const aiResp = JSON.parse(resultText);
       return aiResp;

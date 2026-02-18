@@ -1,11 +1,10 @@
 'use client';
 import React from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
+import TopicBadge from './TopicBadge';
 
-function QuizItems({
+function MainSection({
   question,
-  questionNumber,
-  totalQuestions,
   onAnswerSelect,
   selectedAnswer,
   showFeedback,
@@ -21,7 +20,6 @@ function QuizItems({
       return `${baseStyles} ${hoverStyles} border-gray-300 bg-white text-gray-900`;
     }
 
-    // After answer is selected
     if (option === question.correct_answer) {
       return `${baseStyles} border-green-500 bg-green-50 text-green-900`;
     }
@@ -48,27 +46,20 @@ function QuizItems({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-8">
-      {/* Topic Badge */}
-      {question.topic && (
-        <div className="inline-block mb-4 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-          {question.topic}
-        </div>
-      )}
-
+    <div className="bg-white rounded-lg shadow-md p-6">
+      {/* Topic Badge */} <TopicBadge topic={question.topic} />
       {/* Question */}
-      <h2 className="text-2xl font-bold text-gray-900 mb-8 leading-relaxed">{question.question}</h2>
-
+      <h2 className="text-xl font-bold text-gray-900 mb-2 leading-relaxed">{question.question}</h2>
       {/* Options */}
-      <div className="mb-8">
-        <p className="text-sm text-gray-600 font-semibold mb-4">Select an answer:</p>
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 font-semibold mb-2">Select an answer:</p>
         <div className="space-y-3">
           {question.options?.map((option, index) => (
             <button
               key={index}
               onClick={() => onAnswerSelect(option)}
               disabled={isAnswered}
-              className={getOptionStyles(option)}
+              className={getOptionStyles(option) + ' py-3 px-4'}
             >
               <div className="flex items-center justify-between">
                 <span>{option}</span>
@@ -78,11 +69,10 @@ function QuizItems({
           ))}
         </div>
       </div>
-
       {/* Feedback Message */}
       {showFeedback && (
         <div
-          className={`p-4 rounded-lg mb-6 flex items-center gap-3 ${
+          className={`p-4 rounded-lg mb-2 flex items-center gap-3 ${
             feedbackMessage.includes('Correct')
               ? 'bg-green-50 border border-green-200'
               : 'bg-red-50 border border-red-200'
@@ -102,8 +92,7 @@ function QuizItems({
           </p>
         </div>
       )}
-
-      {/* Answer Explanation (Optional - you can add this from the data if available) */}
+      {/* Answer Explanation */}
       {isAnswered && question.explanation && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-gray-700">
@@ -115,4 +104,4 @@ function QuizItems({
   );
 }
 
-export default QuizItems;
+export default MainSection;
