@@ -6,6 +6,7 @@ export const USER_TABLE = pgTable('users', {
   email: varchar().notNull().unique(),
   isMember: boolean().default(false),
   dateJoined: timestamp().defaultNow().notNull(),
+  customerId: varchar(),
 });
 
 export const STUDY_MATERIAL_TABLE = pgTable('study_materials', {
@@ -33,4 +34,10 @@ export const STUDY_TYPE_CONTENT_TABLE = pgTable('study_type_content', {
   type: varchar().notNull(),
   content: json(),
   status: varchar().default('Generating'),
+});
+
+export const PAYMENT_TABLE = pgTable('paymentRecord', {
+  id: serial().primaryKey(),
+  customerId: varchar(),
+  sessionId: varchar(),
 });
