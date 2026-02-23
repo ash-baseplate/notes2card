@@ -42,6 +42,8 @@ export async function POST(req) {
       // Payment is successful and the subscription is created.
       // Save the Stripe customer ID and mark as member.
       console.log('✅ checkout.session.completed for:', data.object.customer_details?.email);
+
+      // Update DB
       await db
         .update(USER_TABLE)
         .set({
@@ -68,6 +70,7 @@ export async function POST(req) {
       // The subscription becomes past_due. Notify your customer and send them to the
       // customer portal to update their payment information.
       console.log('❌ invoice.payment_failed for:', data.object.customer_email);
+
       await db
         .update(USER_TABLE)
         .set({
@@ -75,6 +78,7 @@ export async function POST(req) {
           customerId: null,
         })
         .where(eq(USER_TABLE.email, data.object.customer_email));
+
       break;
     case 'customer.subscription.deleted':
       // Subscription cancelled — revoke membership

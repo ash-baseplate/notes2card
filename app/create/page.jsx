@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@clerk/nextjs';
+import { useEffect } from 'react';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -15,6 +16,7 @@ function Create() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
+  const [isMember, setIsMember] = useState(false);
   const router = useRouter();
 
   const handleUserInput = (fieldName, fieldValue) => {
@@ -37,6 +39,25 @@ function Create() {
     toast("Your course outline is being generated. It'll be ready in a few minutes!");
     console.log(result);
   };
+  useEffect(() => {
+    async function fetchMembership() {
+      if (user?.primaryEmailAddress?.emailAddress) {
+        try {
+          const res = await fetch('/api/user-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.primaryEmailAddress.emailAddress }),
+          });
+          const data = await res.json();
+          setIsMember(!!data.isMember);
+        } catch (e) {
+          setIsMember(false);
+        }
+      }
+    }
+    fetchMembership();
+  }, [user]);
+
   return (
     <div className="flex flex-col items-center p-5 md:px-24 lg:px-32 mt-20">
       <h2 className="font-bold text-4xl text-primary">
@@ -53,6 +74,7 @@ function Create() {
           <TopicInput
             setTopic={(value) => handleUserInput('topic', value)}
             setDifficultLevel={(value) => handleUserInput('difficultyLevel', value)}
+            isMember={isMember}
           />
         )}
       </div>

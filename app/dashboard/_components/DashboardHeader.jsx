@@ -12,27 +12,19 @@ import { CourseCountContext } from '@/app/_context/CourseCountContext';
 
 function DashboardHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [userDate, setUserDate] = useState(null);
   const [isMember, setIsMember] = useState(false);
   const { isSignedIn, user } = useUser();
   const pathname = usePathname();
   const { courseCount = 0 } = useContext(CourseCountContext) || {};
-  const isOnDashboard = pathname === '/dashboard' || pathname === '/dashboard/upgrade';
-
+  const isOnDashboard =
+    pathname === '/dashboard' ||
+    pathname === '/dashboard/upgrade' ||
+    pathname === '/dashboard/profile';
   // Extract courseId and check if on course subpage
-  const courseMatch = pathname.match(/\/course\/([^/]+)\//);
+  const courseMatch = pathname.match(/\/course\/([^/]+)(?:$|\/)/);
   const courseId = courseMatch ? courseMatch[1] : null;
 
   useEffect(() => {
-    if (user?.createdAt) {
-      setUserDate(
-        new Date(user.createdAt).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-      );
-    }
     if (user?.emailAddresses?.[0]?.emailAddress) {
       fetch('/api/user-status', {
         method: 'POST',
@@ -60,22 +52,14 @@ function DashboardHeader() {
           isMenuOpen ? 'max-md:w-full' : 'max-md:w-0'
         }`}
       >
-        <HoverCard>
-          <HoverCardTrigger asChild>
-            <a className="hover:text-indigo-600 cursor-pointer">Profile</a>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold">
-                {user?.firstName} {user?.lastName}
-              </h4>
-              <p className="text-sm text-gray-600">{user?.emailAddresses[0]?.emailAddress}</p>
-              {userDate && <p className="text-xs text-gray-500">Member since: {userDate}</p>}
-            </div>
-          </HoverCardContent>
-        </HoverCard>
+        <Link href="/dashboard/profile" className="hover:text-indigo-600">
+          Profile
+        </Link>
         {!isOnDashboard ? (
-          <a className="hover:text-indigo-600" href={`/course/${courseId}`}>
+          <a
+            className="hover:text-indigo-600"
+            href={courseId ? `/course/${courseId}` : '/dashboard'}
+          >
             Course
           </a>
         ) : isMember ? (
@@ -164,7 +148,7 @@ function DashboardHeader() {
             </HoverCardContent>
           </HoverCard>
         )}
-        <UserButton />
+        <UserButton userProfileMode="navigation" userProfileUrl="/dashboard/profile" />
       </div>
     </header>
   );

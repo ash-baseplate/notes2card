@@ -40,4 +40,5 @@ export const PAYMENT_TABLE = pgTable('paymentRecord', {
   id: serial().primaryKey(),
   customerId: varchar(),
   sessionId: varchar(),
+  upgradeDate: timestamp().defaultNow().notNull(),
 });

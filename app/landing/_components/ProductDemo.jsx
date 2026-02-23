@@ -30,16 +30,16 @@ export default function ProductDemo() {
             <label className="block text-sm font-semibold text-gray-900">Select Study Type</label>
             <div className="grid grid-cols-2 gap-3">
               <button className="p-3 border-2 border-indigo-600 rounded-lg bg-indigo-50 text-indigo-600 font-medium hover:bg-indigo-100">
-                Flashcards
+                Exam
               </button>
               <button className="p-3 border border-gray-200 rounded-lg text-gray-600 hover:border-gray-300">
-                Quiz
+                Job Interview
               </button>
               <button className="p-3 border border-gray-200 rounded-lg text-gray-600 hover:border-gray-300">
-                Q&A
+                Practice
               </button>
               <button className="p-3 border border-gray-200 rounded-lg text-gray-600 hover:border-gray-300">
-                Exam Prep
+                Coding Prep
               </button>
             </div>
           </div>

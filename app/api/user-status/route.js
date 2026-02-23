@@ -1,6 +1,6 @@
 import { db } from '@/configs/db';
-import { USER_TABLE } from '@/configs/schema';
-import { eq } from 'drizzle-orm';
+import { USER_TABLE, PAYMENT_TABLE } from '@/configs/schema';
+import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
@@ -18,7 +18,25 @@ export async function POST(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const userData = { ...result[0], activePlan: null };
+    const userData = { ...result[0], activePlan: null, upgradeDate: null };
+
+    // Fetch upgrade date from payment records
+    // Note: PAYMENT_TABLE.customerId stores the user's email (from Stripe webhook)
+    if (email) {
+      try {
+        const paymentRecords = await db
+          .select()
+          .from(PAYMENT_TABLE)
+          .where(eq(PAYMENT_TABLE.customerId, email))
+          .orderBy(desc(PAYMENT_TABLE.id))
+          .limit(1);
+        if (paymentRecords.length > 0 && paymentRecords[0].upgradeDate) {
+          userData.upgradeDate = paymentRecords[0].upgradeDate;
+        }
+      } catch (paymentError) {
+        console.error('Error fetching payment record:', paymentError);
+      }
+    }
 
     // If user is a member with a Stripe customer ID, fetch their active plan
     if (userData.isMember && userData.customerId) {
