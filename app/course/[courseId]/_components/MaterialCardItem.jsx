@@ -2,57 +2,68 @@ import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { RefreshCcw } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
-function MaterialCardItem({ item, studyTypeContent, course, refreshData }) {
+function MaterialCardItem({ item, studyTypeContent, isPending, canGenerate, course, refreshData }) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  // Map item.type to the response key from the API
-  const responseKeyMap = {
-    flashcards: 'flashcards',
-    quiz: 'quiz',
-    qa: 'qa',
-    notes: 'notes',
-  };
-  const responseKey = responseKeyMap[item.type] || item.type;
+  const itemPath = (item.path || '').trim();
 
   // Check if content exists (works for both arrays and objects)
-  const isContentReady = studyTypeContent?.[responseKey] != null;
+  const isContentReady = studyTypeContent?.[item.type] != null;
+  const isGenerating = isPending;
 
   const GenerateContent = async () => {
+    if (loading || isGenerating || !canGenerate) return;
+
     toast.success('Content generation started! It may take a few minutes.');
     setLoading(true);
-    console.log(course);
 
-    let chapters = '';
-    course?.courseLayout?.chapters?.forEach((chapter) => {
-      chapters = (chapter.chapterTitle || chapter.chapter_title) + ', ' + chapters;
-    });
-    const result = await axios.post('/api/generate-study-type-content', {
-      courseId: course?.courseId,
-      type: item.name,
-      chapters: chapters,
-    });
-    setLoading(false);
-    console.log(result);
-    refreshData(true);
-    toast.success('Content generation request submitted successfully!');
+    const chapters =
+      course?.courseLayout?.chapters
+        ?.map((chapter) => chapter.chapterTitle || chapter.chapter_title)
+        .filter(Boolean)
+        .join(', ') || '';
+    try {
+      await axios.post('/api/generate-study-type-content', {
+        courseId: course?.courseId,
+        type: item.type,
+        chapters,
+      });
+      refreshData({ requestedType: item.type });
+      toast.success('Content generation request submitted successfully!');
+    } catch (error) {
+      const serverMessage = error?.response?.data?.error;
+      toast.error(serverMessage || 'Unable to generate content right now. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCardClick = () => {
     if (!isContentReady) {
-      toast.error('Content is still being generated. Please wait...');
+      if (isGenerating) {
+        toast.error('Content is generating. Please refresh after it completes.');
+        return;
+      }
+
+      if (!canGenerate) {
+        toast.error('Notes are generated with the course outline. Refresh to check availability.');
+        return;
+      }
+
+      toast.error('Content is not ready yet. Please try again after refresh.');
       return;
     }
+
+    router.push('/course/' + course?.courseId + itemPath);
   };
 
   return (
-    <Link
-      href={isContentReady ? '/course/' + course?.courseId + item.path : '#'}
-      onClick={handleCardClick}
-    >
+    <div onClick={handleCardClick} className={isContentReady ? 'cursor-pointer' : 'cursor-default'}>
       <div
         className={`border shadow-md rounded-lg p-5 flex flex-col items-center
       ${isContentReady ? 'bg-white' : 'bg-gray-100 opacity-50'}
@@ -62,8 +73,12 @@ function MaterialCardItem({ item, studyTypeContent, course, refreshData }) {
           <h2 className="p-1 px-2 bg-green-500 rounded-full text-white mb-1 text-[10px]">
             Ready!!
           </h2>
+        ) : isGenerating ? (
+          <h2 className="p-1 px-2 bg-blue-500 rounded-full text-white mb-1 text-[10px]">
+            Generating
+          </h2>
         ) : (
-          <h2 className="p-1 px-2 bg-Gray-500 rounded-full text-white mb-1 text-[10px]">Genrate</h2>
+          <h2 className="p-1 px-2 bg-gray-500 rounded-full text-white mb-1 text-[10px]">Genrate</h2>
         )}
         <Image src={item.icon} alt={item.name} width={60} height={60} />
         <h2 className="font-medium mt-3">{item.name}</h2>
@@ -72,17 +87,26 @@ function MaterialCardItem({ item, studyTypeContent, course, refreshData }) {
           <Button className="mt-3 w-full cursor-pointer " variant="outline">
             View
           </Button>
-        ) : (
+        ) : canGenerate ? (
           <Button
             className="mt-3 w-full cursor-pointer "
             variant="outline"
-            onClick={() => GenerateContent()}
+            onClick={(e) => {
+              e.stopPropagation();
+              GenerateContent();
+            }}
+            disabled={loading || isGenerating}
           >
-            {loading && <RefreshCcw className="animate-spin" />}Generate
+            {(loading || isGenerating) && <RefreshCcw className="animate-spin" />}
+            {isGenerating ? 'Generating...' : 'Generate'}
+          </Button>
+        ) : (
+          <Button className="mt-3 w-full cursor-not-allowed" variant="outline" disabled>
+            Not ready
           </Button>
         )}
       </div>
-    </Link>
+    </div>
   );
 }
 

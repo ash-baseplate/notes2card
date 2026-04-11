@@ -18,8 +18,8 @@ const HTMLConfig = {
   },
 };
 
-const modelv2 = 'gemini-2.5-flash';
-// const modelv2 = 'gemini-3-flash-preview';
+// const modelv2 = 'gemini-2.5-flash';
+const modelv2 = 'gemini-3-flash-preview';
 // Course Outline Generation Model
 const courseOutlineContents = [
   {
@@ -197,7 +197,7 @@ Generate detail content for exam material on each chapter Make sure to includes 
         </ul>
     </section>
 
-    <!-- Topic 5: Running your first 'Hello World' app -->
+    <!-- Topic 2: Running your first 'Hello World' app -->
     <section style="margin-bottom: 40px;">
         <h2 style="color: #0277bd; border-bottom: 2px solid #b3e5fc; padding-bottom: 10px;">5. Running your first 'Hello World' app</h2>
         <p>To run the application, you need a target device (either a physical phone connected via USB with USB Debugging enabled or a virtual emulator).</p>
@@ -215,7 +215,7 @@ Generate detail content for exam material on each chapter Make sure to includes 
         <p style="margin-top: 15px;">This command compiles the code and launches the app. The default "Counter App" usually appears, but we will modify it to be a "Hello World" app.</p>
     </section>
 
-    <!-- Topic 6: Understanding main.dart and project structure -->
+    <!-- Topic 3: Understanding main.dart and project structure -->
     <section style="margin-bottom: 40px;">
         <h2 style="color: #0277bd; border-bottom: 2px solid #b3e5fc; padding-bottom: 10px;">6. Understanding \`main.dart\` and basic project structure</h2>
         
@@ -544,6 +544,87 @@ export const GenerateQuizAiModel = async (userPrompt) => {
     return resultText;
   } catch (error) {
     console.error('Error in GenerateQuizAiModel:', error);
+    throw error;
+  }
+};
+
+const StudyTypeQAContents = [
+  {
+    role: 'user',
+    parts: [
+      {
+        text: `Generate Question and Answer pairs on topic : Flutter Fundamentals,User Interface (UI) Development,Basic App Navigation in JSON format with question and answer content, Maximum 15`,
+      },
+    ],
+  },
+  {
+    role: 'model',
+    parts: [
+      {
+        text: `
+\`\`\`json
+[
+  {
+    "question": "What is Flutter?",
+    "answer": "Flutter is Google's open-source UI toolkit for building natively compiled applications from a single codebase."
+  },
+  {
+    "question": "What does the term 'Everything is a Widget' mean in Flutter?",
+    "answer": "It means every part of the user interface, including layout structure and visible components, is built using widgets."
+  },
+  {
+    "question": "What is the role of the Scaffold widget?",
+    "answer": "Scaffold provides the basic visual layout structure for a screen, including app bar, body, drawer, and floating action button support."
+  },
+  {
+    "question": "What is Navigator.pop() used for?",
+    "answer": "Navigator.pop() removes the current route from the navigation stack and returns to the previous screen."
+  }
+]
+\`\`\``,
+      },
+    ],
+  },
+  {
+    role: 'user',
+    parts: [
+      {
+        text: `INSERT_INPUT_HERE`,
+      },
+    ],
+  },
+];
+
+export const GenerateQuestionAnswerAiModel = async (userPrompt) => {
+  const conversationHistory = [
+    ...StudyTypeQAContents,
+    {
+      role: 'user',
+      parts: [{ text: userPrompt }],
+    },
+  ];
+
+  try {
+    const response = await aiV2.models.generateContent({
+      model: modelv2,
+      config: JSONConfig,
+      contents: conversationHistory,
+    });
+
+    let resultText =
+      (typeof response.text === 'function' && response.text()) ||
+      (typeof response.response?.text === 'function' && response.response.text()) ||
+      response.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('') ||
+      '';
+
+    resultText = resultText
+      .replace(/^```json\s*/i, '')
+      .replace(/```\s*$/i, '')
+      .trim();
+
+    return resultText;
+  } catch (error) {
+    console.error('Error in GenerateQuestionAnswerAiModel:', error);
     throw error;
   }
 };

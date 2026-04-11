@@ -11,7 +11,10 @@ import {
   chapterNotesGenerator,
   GenerateFlashcardAiModel,
   GenerateQuizAiModel,
+  GenerateQuestionAnswerAiModel,
 } from '@/configs/AiModel';
+import { classifyAIError } from '@/lib/aiError';
+import { NonRetriableError } from 'inngest';
 
 export const CreatNewUser = inngest.createFunction(
   { id: 'create-user' },
@@ -22,7 +25,7 @@ export const CreatNewUser = inngest.createFunction(
     // console.log("USER DATA:", user); // Debug incoming payload
 
     // Get event data
-    const result = await step.run('create-user-if-not-in-db', async () => {
+    await step.run('create-user-if-not-in-db', async () => {
       // Check if user exists
       const result = await db
         .select()
@@ -54,19 +57,19 @@ export const GenerateNotes = inngest.createFunction(
   async ({ event, step }) => {
     const { course } = event.data;
     // Logic to process generated notes
+    try {
+      await step.run('process-generated-notes', async () => {
+        // Example: Log the notes data
+        const Chapters = course?.courseLayout?.chapters;
 
-    const notesResult = await step.run('process-generated-notes', async () => {
-      // Example: Log the notes data
-      const Chapters = course?.courseLayout?.chapters;
+        if (!Chapters || !Array.isArray(Chapters)) {
+          console.error('No chapters found in course layout:', course);
+          return 'No chapters to process';
+        }
 
-      if (!Chapters || !Array.isArray(Chapters)) {
-        console.error('No chapters found in course layout:', course);
-        return 'No chapters to process';
-      }
-
-      let index = 0;
-      Chapters.forEach(async (chapter) => {
-        const PROMPT = `Generate exam material detail content for each chapter.
+        for (let index = 0; index < Chapters.length; index++) {
+          const chapter = Chapters[index];
+          const PROMPT = `Generate exam material detail content for each chapter.
 
 Requirements:
 - Make sure to include all topic points in the content
@@ -74,32 +77,46 @@ Requirements:
 - Structure the content with proper headings, sections, lists, and formatting
 - Include detailed explanations for each topic
 Chapter Data: ${JSON.stringify(chapter)}`;
-        // OLD CODE (commented out - using new SDK version)
-        // const result = await chapterNotesGenerator.sendMessage(PROMPT);
-        // const aiResp = result.response.text();
+          // OLD CODE (commented out - using new SDK version)
+          // const result = await chapterNotesGenerator.sendMessage(PROMPT);
+          // const aiResp = result.response.text();
 
-        // NEW CODE (using new SDK @google/genai)
-        const aiResp = await chapterNotesGenerator(PROMPT);
+          // NEW CODE (using new SDK @google/genai)
+          const aiResp = await chapterNotesGenerator(PROMPT);
 
-        // Save notes to DB
-        await db.insert(Chapter_Notes_TABLE).values({
-          courseId: course?.courseId,
-          chapterId: index,
-          notes: aiResp,
-        });
-        index++;
+          // Save notes to DB
+          await db.insert(Chapter_Notes_TABLE).values({
+            courseId: course?.courseId,
+            chapterId: index,
+            notes: aiResp,
+          });
+        }
+
+        return 'Notes generation process completed';
       });
 
-      return 'Notes generation process completed';
-    });
+      await step.run('update-course-status-to-ready', async () => {
+        await db
+          .update(STUDY_MATERIAL_TABLE)
+          .set({ status: 'Ready' })
+          .where(eq(STUDY_MATERIAL_TABLE.courseId, course?.courseId));
+        return 'Successfully updated course status to Ready';
+      });
+    } catch (error) {
+      const aiError = classifyAIError(error);
+      console.error('GenerateNotes failed:', error);
 
-    const updateCourseStatus = await step.run('update-course-status-to-ready', async () => {
-      const result = await db
-        .update(STUDY_MATERIAL_TABLE)
-        .set({ status: 'Ready' })
-        .where(eq(STUDY_MATERIAL_TABLE.courseId, course?.courseId));
-      return 'Successfully updated course status to Ready';
-    });
+      await step.run('update-course-status-to-failed', async () => {
+        await db
+          .update(STUDY_MATERIAL_TABLE)
+          .set({ status: 'Failed' })
+          .where(eq(STUDY_MATERIAL_TABLE.courseId, course?.courseId));
+      });
+
+      throw new NonRetriableError(`${aiError.code}: ${aiError.message}`, {
+        cause: error,
+      });
+    }
   }
 );
 
@@ -107,30 +124,57 @@ export const GenerateStudyTypeContent = inngest.createFunction(
   { id: 'generate-study-type-content' },
   { event: 'study/type.content.generated' },
   async ({ event, step }) => {
-    const { studyType, prompt, courseId, recordId } = event.data;
+    const { studyType, prompt, recordId } = event.data;
     // Logic to process generated study type content
+    try {
+      const AiResult = await step.run('Generating-flashcard', async () => {
+        try {
+          const resultText =
+            studyType === 'flashcards'
+              ? await GenerateFlashcardAiModel(prompt)
+              : studyType === 'qa'
+                ? await GenerateQuestionAnswerAiModel(prompt)
+                : await GenerateQuizAiModel(prompt);
+          const aiResp = JSON.parse(resultText);
+          return aiResp;
+        } catch (error) {
+          const aiError = classifyAIError(error);
 
-    const AiResult = await step.run('Generating-flashcard', async () => {
-      const resultText =
-        studyType === 'Flashcards'
-          ? await GenerateFlashcardAiModel(prompt)
-          : await GenerateQuizAiModel(prompt);
-      const aiResp = JSON.parse(resultText);
-      return aiResp;
-    });
+          // Fail fast for provider quota/high-demand/token-limit issues so cleanup can run now.
+          if (!aiError.retryable) {
+            throw new NonRetriableError(`${aiError.code}: ${aiError.message}`, {
+              cause: error,
+            });
+          }
 
-    const DbResult = await step.run('store-study-type-content-in-db', async () => {
-      // Store the generated content in the database
-      const result = await db
-        .update(STUDY_TYPE_CONTENT_TABLE)
-        .set({
-          content: AiResult,
-          status: 'Ready',
-        })
-        .where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId));
-    });
+          throw error;
+        }
+      });
 
-    return 'Study type content generation process completed';
+      await step.run('store-study-type-content-in-db', async () => {
+        // Store the generated content in the database
+        await db
+          .update(STUDY_TYPE_CONTENT_TABLE)
+          .set({
+            content: AiResult,
+            status: 'Ready',
+          })
+          .where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId));
+      });
+
+      return 'Study type content generation process completed';
+    } catch (error) {
+      const aiError = classifyAIError(error);
+      console.error('GenerateStudyTypeContent failed:', error);
+
+      await step.run('delete-study-type-content-record', async () => {
+        await db.delete(STUDY_TYPE_CONTENT_TABLE).where(eq(STUDY_TYPE_CONTENT_TABLE.id, recordId));
+      });
+
+      throw new NonRetriableError(`${aiError.code}: ${aiError.message}`, {
+        cause: error,
+      });
+    }
   }
 );
 
@@ -143,8 +187,6 @@ export const DeleteCourse = inngest.createFunction(
     if (!courseId) {
       throw new Error('courseId is required for course deletion');
     }
-
-    // Delete chapter notes
 
     // Delete chapter notes
     await step.run('delete-chapter-notes', async () => {

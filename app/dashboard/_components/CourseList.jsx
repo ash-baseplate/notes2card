@@ -13,12 +13,33 @@ import { CourseCountContext } from '@/app/_context/CourseCountContext';
 function CourseList() {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+  const [isMember, setIsMember] = useState(false);
   const [CourseList, setCourseList] = useState([]);
   const { courseCount, setCourseCount } = useContext(CourseCountContext);
   const pollingRef = useRef(null);
 
   useEffect(() => {
     user && GetCourseList();
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchMembership() {
+      if (!user?.primaryEmailAddress?.emailAddress) return;
+
+      try {
+        const res = await fetch('/api/user-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.primaryEmailAddress.emailAddress }),
+        });
+        const data = await res.json();
+        setIsMember(!!data.isMember);
+      } catch {
+        setIsMember(false);
+      }
+    }
+
+    fetchMembership();
   }, [user]);
 
   // Polling effect for auto-refresh when courses are generating
@@ -67,13 +88,15 @@ function CourseList() {
     [setCourseCount]
   );
 
+  const limitReached = !isMember && courseCount >= 3;
+
   return (
     <div>
       <h2 className="font-bold text-xl md:text-2xl mt-6 md:mt-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         Your Study Material
         <div className="flex gap-2 items-center">
-          <Link href={courseCount >= 5 ? "#" : "/create"}>
-            <Button disabled={courseCount >= 5}>+ Create New</Button>
+          <Link href={limitReached ? '#' : '/create'}>
+            <Button disabled={limitReached}>+ Create New</Button>
           </Link>
           <Button variant="outline" className="border-primary text-primary" onClick={GetCourseList}>
             <RefreshCw />

@@ -8,7 +8,7 @@ function OverviewTab({ courses, isMember }) {
   const total = courses.length;
   const ready = courses.filter((c) => c.status === 'Ready').length;
   const generating = courses.filter((c) => c.status === 'Generating').length;
-  const credits = isMember ? 'Unlimited' : `${Math.max(5 - total, 0)} / 5`;
+  const credits = isMember ? 'Unlimited' : `${Math.max(3 - total, 0)} / 3`;
 
   return (
     <div className="space-y-6">

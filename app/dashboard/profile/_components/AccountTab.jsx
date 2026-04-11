@@ -77,7 +77,7 @@ function AccountTab({ userStatus, courses }) {
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500">Credits</span>
             <span className="text-sm font-medium text-gray-900">
-              {isMember ? 'Unlimited' : `${Math.max(5 - total, 0)} of 5 remaining`}
+              {isMember ? 'Unlimited' : `${Math.max(3 - total, 0)} of 3 remaining`}
             </span>
           </div>
 

@@ -138,9 +138,9 @@ function DashboardHeader() {
             </HoverCardTrigger>
             <HoverCardContent className="w-60">
               <div className="border p-2 bg-slate-100 rounded-lg">
-                <h2 className="text-lg mb-2">Available Credits : {5 - courseCount}</h2>
-                <Progress value={(courseCount / 5) * 100} />
-                <h2 className="text-sm">{courseCount} Out of 5 Credits Used</h2>
+                <h2 className="text-lg mb-2">Available Credits : {Math.max(3 - courseCount, 0)}</h2>
+                <Progress value={Math.min((courseCount / 3) * 100, 100)} />
+                <h2 className="text-sm">{courseCount} Out of 3 Credits Used</h2>
                 <Link href="/dashboard/upgrade" className="text-primary text-xs mt-2 block">
                   Upgrade to Create More
                 </Link>

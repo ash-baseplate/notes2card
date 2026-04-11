@@ -1,7 +1,17 @@
 import { db } from '@/configs/db';
 import { Chapter_Notes_TABLE, STUDY_TYPE_CONTENT_TABLE } from '@/configs/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+
+const normalizeStudyTypeKey = (type) => {
+  const value = type?.toLowerCase?.() || '';
+
+  if (value === 'flashcards') return 'flashcards';
+  if (value === 'quiz') return 'quiz';
+  if (value === 'qa' || value === 'question/answers' || value === 'question_answers') return 'qa';
+  if (value === 'notes') return 'notes';
+  return value;
+};
 
 export async function POST(request) {
   const { courseId, studyType } = await request.json();
@@ -15,13 +25,45 @@ export async function POST(request) {
     const contentList = await db
       .select()
       .from(STUDY_TYPE_CONTENT_TABLE)
-      .where(eq(STUDY_TYPE_CONTENT_TABLE.courseId, courseId));
+      .where(eq(STUDY_TYPE_CONTENT_TABLE.courseId, courseId))
+      .orderBy(desc(STUDY_TYPE_CONTENT_TABLE.id));
+
+    const latestRecords = contentList.reduce((accumulator, item) => {
+      const key = normalizeStudyTypeKey(item.type);
+
+      if (!accumulator[key]) {
+        accumulator[key] = item;
+      }
+
+      return accumulator;
+    }, {});
+
+    const flashcardsRecord = latestRecords.flashcards;
+    const quizRecord = latestRecords.quiz;
+    const qaRecord = latestRecords.qa;
+
+    const status = {
+      flashcards: flashcardsRecord?.status || null,
+      quiz: quizRecord?.status || null,
+      qa: qaRecord?.status || null,
+    };
+
+    const failedTypes = Object.entries(status)
+      .filter(([, value]) => value === 'Failed')
+      .map(([key]) => key);
+
+    const generatingTypes = Object.entries(status)
+      .filter(([, value]) => value === 'Generating')
+      .map(([key]) => key);
 
     const result = {
       notes: notes,
-      flashcards: contentList?.find((item) => item.type === 'Flashcards')?.content,
-      quiz: contentList?.find((item) => item.type === 'Quiz')?.content,
-      qa: contentList?.find((item) => item.type === 'Question/Answers')?.content,
+      flashcards: flashcardsRecord?.content,
+      quiz: quizRecord?.content,
+      qa: qaRecord?.content,
+      status,
+      failedTypes,
+      generatingTypes,
     };
 
     return NextResponse.json(result);
@@ -32,13 +74,14 @@ export async function POST(request) {
       .where(eq(Chapter_Notes_TABLE.courseId, courseId));
     return NextResponse.json(notes);
   } else {
+    const normalizedStudyType = normalizeStudyTypeKey(studyType);
     const result = await db
       .select()
       .from(STUDY_TYPE_CONTENT_TABLE)
       .where(
         and(
           eq(STUDY_TYPE_CONTENT_TABLE.courseId, courseId),
-          eq(STUDY_TYPE_CONTENT_TABLE.type, studyType)
+          eq(STUDY_TYPE_CONTENT_TABLE.type, normalizedStudyType)
         )
       );
     if (!result[0]) {
