@@ -4,6 +4,8 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import axios from 'axios';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import NotesQaPanel from './_components/NotesQaPanel';
+import styles from './NotesPage.module.css';
 
 const LOTTIE_LOADING_URL =
   'https://lottie.host/8a46a4d9-1cd2-4258-b472-543a7bf7b032/k33MzDw8sJ.lottie';
@@ -16,7 +18,9 @@ function ViewNotes() {
   const router = useRouter();
 
   const [notes, setNotes] = useState([]);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [stepCount, setStepCount] = useState(() => {
     const chapterParam = searchParams.get('chapter');
     return chapterParam ? parseInt(chapterParam, 10) : 0;
@@ -39,7 +43,18 @@ function ViewNotes() {
       }
     };
 
+    const fetchCourse = async () => {
+      try {
+        const result = await axios.get(`/api/courses?courseId=${courseId}`);
+        setCourse(result.data.result);
+      } catch (error) {
+        console.error('Error fetching course:', error);
+        setCourse(null);
+      }
+    };
+
     fetchNotes();
+    fetchCourse();
   }, [courseId]);
 
   useEffect(() => {
@@ -67,33 +82,50 @@ function ViewNotes() {
     );
   }
 
+  const currentChapterTitle = course?.courseLayout?.chapters?.[stepCount]?.chapterTitle || '';
+
   return (
-    <div>
+    <div className={`relative transition-all duration-300 ${panelOpen ? 'md:mr-[450px]' : ''}`}>
       {hasNotes && (
-        <div className="flex gap-5 items-center">
-          {!isFirstStep && (
-            <Button variant="outline" size="sm" onClick={handlePrevious}>
-              Previous
-            </Button>
-          )}
-          {notes.map((_, index) => (
-            <div
-              key={index}
-              className={`w-full h-2 rounded-full ${
-                index < stepCount ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            />
-          ))}
-          {isNotLastNote && (
-            <Button variant="outline" size="sm" onClick={handleNext}>
-              Next
-            </Button>
-          )}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            {!isFirstStep && (
+              <Button variant="outline" size="sm" onClick={handlePrevious}>
+                Previous
+              </Button>
+            )}
+            <div className="flex-1" />
+            {isNotLastNote && (
+              <Button variant="outline" size="sm" onClick={handleNext}>
+                Next
+              </Button>
+            )}
+          </div>
+          <div className="flex h-2 gap-2">
+            {notes.map((_, index) => (
+              <div
+                key={index}
+                className={`flex-1 rounded-full transition-colors duration-200 ${
+                  index < stepCount
+                    ? 'bg-blue-600'
+                    : index === stepCount
+                      ? 'bg-blue-400'
+                      : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       )}
 
       <div className="mt-10">
-        {!isLastStep && <div dangerouslySetInnerHTML={{ __html: currentNoteContent }} />}
+        {!isLastStep && (
+          <div
+            id="notes-content"
+            className={`prose max-w-none ${styles.notesHtmlSection}`}
+            dangerouslySetInnerHTML={{ __html: currentNoteContent }}
+          />
+        )}
 
         {isLastStep && (
           <div className="flex flex-col items-center justify-center mt-10 gap-5">
@@ -105,6 +137,13 @@ function ViewNotes() {
           </div>
         )}
       </div>
+
+      <NotesQaPanel
+        courseTitle={course?.topic || course?.courseTitle}
+        chapterTitle={currentChapterTitle}
+        contentId="notes-content"
+        onOpenChange={setPanelOpen}
+      />
     </div>
   );
 }

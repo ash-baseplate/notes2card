@@ -1,0 +1,18 @@
+.notesHtmlSection {
+  margin-left: -2.5rem; /* Cancel out mx-10 */
+  margin-right: -2.5rem;
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+@media (min-width: 768px) {
+  .notesHtmlSection {
+    margin-left: -9rem; /* Cancel out md:36 */
+    margin-right: -9rem;
+  }
+}
+@media (min-width: 1024px) {
+  .notesHtmlSection {
+    margin-left: -15rem; /* Cancel out lg:px-60 */
+    margin-right: -15rem;
+  }
+}

@@ -12,14 +12,11 @@ function MaterialCardItem({ item, studyTypeContent, isPending, canGenerate, cour
 
   const itemPath = (item.path || '').trim();
 
-  // Check if content exists (works for both arrays and objects)
   const isContentReady = studyTypeContent?.[item.type] != null;
   const isGenerating = isPending;
 
   const GenerateContent = async () => {
     if (loading || isGenerating || !canGenerate) return;
-
-    toast.success('Content generation started! It may take a few minutes.');
     setLoading(true);
 
     const chapters =

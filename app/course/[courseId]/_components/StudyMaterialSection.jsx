@@ -26,13 +26,6 @@ const MATERIAL_LIST = [
     path: '/quiz',
     type: 'quiz',
   },
-  {
-    name: 'Question/Answers',
-    desc: 'Practice questions and answers ',
-    icon: '/qa.png',
-    path: '',
-    type: 'qa',
-  },
 ];
 
 function StudyMaterialSection({ courseId, course }) {

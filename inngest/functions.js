@@ -11,7 +11,6 @@ import {
   chapterNotesGenerator,
   GenerateFlashcardAiModel,
   GenerateQuizAiModel,
-  GenerateQuestionAnswerAiModel,
 } from '@/configs/AiModel';
 import { classifyAIError } from '@/lib/aiError';
 import { NonRetriableError } from 'inngest';
@@ -132,9 +131,7 @@ export const GenerateStudyTypeContent = inngest.createFunction(
           const resultText =
             studyType === 'flashcards'
               ? await GenerateFlashcardAiModel(prompt)
-              : studyType === 'qa'
-                ? await GenerateQuestionAnswerAiModel(prompt)
-                : await GenerateQuizAiModel(prompt);
+              : await GenerateQuizAiModel(prompt);
           const aiResp = JSON.parse(resultText);
           return aiResp;
         } catch (error) {

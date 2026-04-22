@@ -8,7 +8,7 @@ const normalizeStudyTypeKey = (type) => {
 
   if (value === 'flashcards') return 'flashcards';
   if (value === 'quiz') return 'quiz';
-  if (value === 'qa' || value === 'question/answers' || value === 'question_answers') return 'qa';
+  if (value === 'qa' || value === 'question/answers' || value === 'question_answers') return null;
   if (value === 'notes') return 'notes';
   return value;
 };
@@ -31,6 +31,10 @@ export async function POST(request) {
     const latestRecords = contentList.reduce((accumulator, item) => {
       const key = normalizeStudyTypeKey(item.type);
 
+      if (!key) {
+        return accumulator;
+      }
+
       if (!accumulator[key]) {
         accumulator[key] = item;
       }
@@ -40,12 +44,10 @@ export async function POST(request) {
 
     const flashcardsRecord = latestRecords.flashcards;
     const quizRecord = latestRecords.quiz;
-    const qaRecord = latestRecords.qa;
 
     const status = {
       flashcards: flashcardsRecord?.status || null,
       quiz: quizRecord?.status || null,
-      qa: qaRecord?.status || null,
     };
 
     const failedTypes = Object.entries(status)
@@ -60,7 +62,6 @@ export async function POST(request) {
       notes: notes,
       flashcards: flashcardsRecord?.content,
       quiz: quizRecord?.content,
-      qa: qaRecord?.content,
       status,
       failedTypes,
       generatingTypes,
@@ -75,6 +76,13 @@ export async function POST(request) {
     return NextResponse.json(notes);
   } else {
     const normalizedStudyType = normalizeStudyTypeKey(studyType);
+    if (!normalizedStudyType) {
+      return NextResponse.json(
+        { error: 'Question/Answers study type has been removed.' },
+        { status: 400 }
+      );
+    }
+
     const result = await db
       .select()
       .from(STUDY_TYPE_CONTENT_TABLE)

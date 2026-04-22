@@ -9,7 +9,7 @@ const normalizeStudyTypeKey = (type) => {
 
   if (value === 'flashcards') return 'flashcards';
   if (value === 'quiz') return 'quiz';
-  if (value === 'qa' || value === 'question/answers' || value === 'question_answers') return 'qa';
+  if (value === 'qa' || value === 'question/answers' || value === 'question_answers') return null;
   if (value === 'notes') return 'notes';
   return value;
 };
@@ -26,12 +26,17 @@ export async function POST(request) {
       );
     }
 
+    if (!normalizedType) {
+      return NextResponse.json(
+        { error: 'Question/Answers study type has been removed.' },
+        { status: 400 }
+      );
+    }
+
     const PROMPT =
       normalizedType === 'flashcards'
         ? `Generate the flashcard on topic : ${chapters} in JSON format with front back content, Maximum 15 `
-        : normalizedType === 'qa'
-          ? `Generate Question and Answer pairs on topic : ${chapters} in JSON format with question and answer content, Maximum 15`
-          : `Generate Quiz on topic : ${chapters} with Question, Options and Correct answers  in JSON format, Maximum 15`;
+        : `Generate Quiz on topic : ${chapters} with Question, Options and Correct answers  in JSON format, Maximum 15`;
 
     //insert to db
 

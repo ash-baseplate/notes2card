@@ -18,6 +18,14 @@ const HTMLConfig = {
   },
 };
 
+const QAConfig = {
+  generationConfig: {
+    temperature: 0.3,
+    maxOutputTokens: 8192,
+    responseMimeType: 'text/plain',
+  },
+};
+
 // const modelv2 = 'gemini-2.5-flash';
 const modelv2 = 'gemini-3-flash-preview';
 // Course Outline Generation Model
@@ -548,56 +556,8 @@ export const GenerateQuizAiModel = async (userPrompt) => {
   }
 };
 
-const StudyTypeQAContents = [
-  {
-    role: 'user',
-    parts: [
-      {
-        text: `Generate Question and Answer pairs on topic : Flutter Fundamentals,User Interface (UI) Development,Basic App Navigation in JSON format with question and answer content, Maximum 15`,
-      },
-    ],
-  },
-  {
-    role: 'model',
-    parts: [
-      {
-        text: `
-\`\`\`json
-[
-  {
-    "question": "What is Flutter?",
-    "answer": "Flutter is Google's open-source UI toolkit for building natively compiled applications from a single codebase."
-  },
-  {
-    "question": "What does the term 'Everything is a Widget' mean in Flutter?",
-    "answer": "It means every part of the user interface, including layout structure and visible components, is built using widgets."
-  },
-  {
-    "question": "What is the role of the Scaffold widget?",
-    "answer": "Scaffold provides the basic visual layout structure for a screen, including app bar, body, drawer, and floating action button support."
-  },
-  {
-    "question": "What is Navigator.pop() used for?",
-    "answer": "Navigator.pop() removes the current route from the navigation stack and returns to the previous screen."
-  }
-]
-\`\`\``,
-      },
-    ],
-  },
-  {
-    role: 'user',
-    parts: [
-      {
-        text: `INSERT_INPUT_HERE`,
-      },
-    ],
-  },
-];
-
 export const GenerateQuestionAnswerAiModel = async (userPrompt) => {
   const conversationHistory = [
-    ...StudyTypeQAContents,
     {
       role: 'user',
       parts: [{ text: userPrompt }],
@@ -607,7 +567,7 @@ export const GenerateQuestionAnswerAiModel = async (userPrompt) => {
   try {
     const response = await aiV2.models.generateContent({
       model: modelv2,
-      config: JSONConfig,
+      config: QAConfig,
       contents: conversationHistory,
     });
 
@@ -617,10 +577,7 @@ export const GenerateQuestionAnswerAiModel = async (userPrompt) => {
       response.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('') ||
       '';
 
-    resultText = resultText
-      .replace(/^```json\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
+    resultText = resultText.trim();
 
     return resultText;
   } catch (error) {
