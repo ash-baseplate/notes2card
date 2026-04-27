@@ -16,9 +16,7 @@ import { classifyAIError } from '@/lib/aiError';
 import { NonRetriableError } from 'inngest';
 
 export const CreatNewUser = inngest.createFunction(
-  { id: 'create-user' },
-  { event: 'user/new.created' },
-
+  { id: 'create-user', triggers: [{ event: 'user/new.created' }] },
   async ({ event, step }) => {
     const { user } = event.data;
     // console.log("USER DATA:", user); // Debug incoming payload
@@ -51,8 +49,7 @@ export const CreatNewUser = inngest.createFunction(
 );
 
 export const GenerateNotes = inngest.createFunction(
-  { id: 'generate-notes' },
-  { event: 'notes/generate.completed' },
+  { id: 'generate-notes', triggers: [{ event: 'notes/generate.completed' }] },
   async ({ event, step }) => {
     const { course } = event.data;
     // Logic to process generated notes
@@ -120,8 +117,7 @@ Chapter Data: ${JSON.stringify(chapter)}`;
 );
 
 export const GenerateStudyTypeContent = inngest.createFunction(
-  { id: 'generate-study-type-content' },
-  { event: 'study/type.content.generated' },
+  { id: 'generate-study-type-content', triggers: [{ event: 'study/type.content.generated' }] },
   async ({ event, step }) => {
     const { studyType, prompt, recordId } = event.data;
     // Logic to process generated study type content
@@ -176,8 +172,7 @@ export const GenerateStudyTypeContent = inngest.createFunction(
 );
 
 export const DeleteCourse = inngest.createFunction(
-  { id: 'delete-course' },
-  { event: 'course/delete.requested' },
+  { id: 'delete-course', triggers: [{ event: 'course/delete.requested' }] },
   async ({ event, step }) => {
     const { courseId } = event.data;
 
